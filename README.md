@@ -34,4 +34,4 @@ This project is a real-time web application built with **Next.js**, **Tailwind C
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/yourproject.git
+   git clone https://github.com/ShreyasT123/fireapp.git
