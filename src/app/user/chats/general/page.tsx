@@ -1,192 +1,6 @@
-// "use client"
-// import React, { useState, useEffect } from 'react';
-// import { Search, Settings, Send, User, Moon, Sun } from 'lucide-react';
-// import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
-// import { db, auth } from '@/lib/firebase';
-// import { useTheme } from "next-themes";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { ScrollArea } from "@/components/ui/scroll-area";
-// import { Separator } from "@/components/ui/separator";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
-
-// const ChatInterface = () => {
-//   const [message, setMessage] = useState('');
-//   const [messages, setMessages] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [userName, setUserName] = useState(auth.currentUser?.displayName || 'Anonymous');
-//   const { setTheme, theme } = useTheme();
-
-//   useEffect(() => {
-//     // Set theme to dark by default
-//     setTheme("dark");
-//   }, []);
-
-//   useEffect(() => {
-//     const q = query(
-//       collection(db, 'publicMessages'),
-//       orderBy('timestamp', 'desc')
-//     );
-
-//     const unsubscribe = onSnapshot(q, (snapshot) => {
-//       const messagesData = [];
-//       snapshot.forEach((doc) => {
-//         messagesData.push({
-//           id: doc.id,
-//           ...doc.data(),
-//           isSent: doc.data().senderId === auth.currentUser?.uid
-//         });
-//       });
-//       setMessages(messagesData.reverse());
-//       setLoading(false);
-//     });
-
-//     return () => unsubscribe();
-//   }, []);
-
-//   const handleSendMessage = async (e) => {
-//     e.preventDefault();
-//     if (!message.trim()) return;
-
-//     try {
-//       await addDoc(collection(db, 'publicMessages'), {
-//         content: message,
-//         senderId: auth.currentUser?.uid || 'anonymous',
-//         senderName: userName,
-//         timestamp: serverTimestamp()
-//       });
-
-//       setMessage('');
-//     } catch (error) {
-//       console.error('Error sending message:', error);
-//     }
-//   };
-
-//   const formatTimestamp = (timestamp) => {
-//     if (!timestamp) return '';
-//     const date = timestamp.toDate();
-//     return new Intl.DateTimeFormat('en-US', {
-//       hour: 'numeric',
-//       minute: 'numeric',
-//       hour12: true
-//     }).format(date);
-//   };
-
-//   return (
-//     <div className="flex h-screen bg-[#524d4d]">
-//       {/* Sidebar */}
-//       <Card className="w-80 border-r border-[#958888] bg-[#141414] rounded-none">
-//         <CardHeader className="space-y-1 p-4 border-b border-[#1A1A1A]">
-//           <div className="flex items-center justify-between">
-//             <div className="flex items-center space-x-2">
-//               <div className="w-8 h-8 rounded-full bg-[#333333] flex items-center justify-center">
-//                 <User className="text-gray-300 w-5 h-5" />
-//               </div>
-//               <CardTitle className="text-gray-200">Public Chat</CardTitle>
-//             </div>
-//           </div>
-//           <Input
-//             type="text"
-//             value={userName}
-//             onChange={(e) => setUserName(e.target.value)}
-//             placeholder="Set your display name..."
-//             className="mt-2 bg-[#1A1A1A] border-[#333333] text-gray-200 placeholder:text-gray-500"
-//           />
-//         </CardHeader>
-//         <CardContent className="text-gray-400">
-//           <div className="text-sm">
-//             <p>Welcome to the public chat!</p>
-//             <p className="mt-2">Everyone can read and send messages here.</p>
-//             <p className="mt-2">Current display name: {userName}</p>
-//           </div>
-//         </CardContent>
-//       </Card>
-
-//       {/* Chat Area */}
-//       <div className="flex-1 flex flex-col bg-[#141414]">
-//         <Card className="border-b border-[#1A1A1A] rounded-none bg-[#141414]">
-//           <CardHeader className="p-4">
-//             <div className="flex items-center space-x-3">
-//               <div className="w-10 h-10 rounded-full bg-[#1A1A1A] flex items-center justify-center">
-//                 <User className="text-gray-400 w-6 h-6" />
-//               </div>
-//               <div>
-//                 <h2 className="font-semibold text-gray-200">Public Channel</h2>
-//                 <span className="text-sm text-green-500">Open to everyone</span>
-//               </div>
-//             </div>
-//           </CardHeader>
-//         </Card>
-
-//         {/* Messages */}
-//         <ScrollArea className="flex-1 p-4">
-//           <div className="space-y-4">
-//             {loading ? (
-//               <div className="text-center text-gray-500">Loading messages...</div>
-//             ) : (
-//               messages.map((msg) => (
-//                 <div
-//                   key={msg.id}
-//                   className={`flex ${msg.isSent ? 'justify-end' : 'justify-start'}`}
-//                 >
-//                   <div
-//                     className={`max-w-[70%] rounded-lg p-3 ${
-//                       msg.isSent
-//                         ? 'bg-[#1E1E1E] text-gray-200'
-//                         : 'bg-[#1A1A1A] text-gray-300'
-//                     }`}
-//                   >
-//                     <div className="text-xs text-gray-400 mb-1">
-//                       {msg.senderName}
-//                     </div>
-//                     <p>{msg.content}</p>
-//                     <span className="text-xs mt-1 block text-gray-500">
-//                       {formatTimestamp(msg.timestamp)}
-//                     </span>
-//                   </div>
-//                 </div>
-//               ))
-//             )}
-//           </div>
-//         </ScrollArea>
-
-//         {/* Message Input */}
-//         <Card className="border-t border-[#1A1A1A] rounded-none bg-[#141414]">
-//           <CardContent className="p-4">
-//             <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
-//               <Input
-//                 type="text"
-//                 value={message}
-//                 onChange={(e) => setMessage(e.target.value)}
-//                 placeholder="Type a message..."
-//                 className="flex-1 bg-[#1A1A1A] border-[#333333] text-gray-200 placeholder:text-gray-500"
-//               />
-//               <Button 
-//                 type="submit" 
-//                 size="icon"
-//                 className="bg-[#333333] hover:bg-[#444444] text-gray-200"
-//               >
-//                 <Send className="h-5 w-5" />
-//               </Button>
-//             </form>
-//           </CardContent>
-//         </Card>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ChatInterface;
-
-"use client"
-import React, { useState, useEffect } from 'react';
-import { Search, Settings, Send, User, Moon, Sun } from 'lucide-react';
+"use client";
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Settings, Send, User, Moon, Sun, Image } from 'lucide-react';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { useTheme } from "next-themes";
@@ -195,18 +9,26 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { createClient } from "@supabase/supabase-js";
+import { toast } from "@/hooks/use-toast";
+
+// Initialize Supabase client
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const ChatInterface = () => {
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState(auth.currentUser?.displayName || 'Anonymous');
+
+  // Image support states
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
   const { setTheme, theme } = useTheme();
 
   useEffect(() => {
@@ -235,19 +57,112 @@ const ChatInterface = () => {
     return () => unsubscribe();
   }, []);
 
+  // Handle image selection from file input
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Error",
+        description: "Only image files are allowed",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "File size must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSelectedImage(file);
+
+    // Create image preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearSelectedImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // Upload image to Supabase and return the public URL
+  const uploadImage = async () => {
+    if (!selectedImage) return null;
+
+    setUploading(true);
+    try {
+      // Generate a unique filename
+      const fileName = `${auth.currentUser?.uid || "anonymous"}-${Date.now()}-${selectedImage.name}`;
+      const filePath = `uploads/${fileName}`;
+
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from("media")
+        .upload(filePath, selectedImage, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (error) throw error;
+
+      // Retrieve the public URL
+      const { data: publicUrlData } = supabase.storage
+        .from("media")
+        .getPublicUrl(filePath);
+      
+      setUploading(false);
+      return publicUrlData.publicUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      setUploading(false);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if ((!message.trim() && !selectedImage)) return;
 
     try {
+      let imageUrl = null;
+
+      if (selectedImage) {
+        imageUrl = await uploadImage();
+        // If image upload failed and there is no text message, do nothing
+        if (!imageUrl && !message.trim()) return;
+      }
+
       await addDoc(collection(db, 'publicMessages'), {
-        content: message,
+        content: message.trim() || "",
+        imageUrl: imageUrl,
         senderId: auth.currentUser?.uid || 'anonymous',
         senderName: userName,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
+        messageType: imageUrl ? (message.trim() ? "text+image" : "image") : "text",
       });
 
       setMessage('');
+      clearSelectedImage();
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -335,7 +250,17 @@ const ChatInterface = () => {
                     <div className="text-sm opacity-80 mb-1">
                       {msg.senderName}
                     </div>
-                    <p className="leading-relaxed">{msg.content}</p>
+                    {msg.content && <p className="leading-relaxed">{msg.content}</p>}
+                    {msg.imageUrl && (
+                      <div className="mt-2">
+                        <img
+                          src={msg.imageUrl}
+                          alt="Shared"
+                          className="rounded-lg max-h-60 object-contain w-full cursor-pointer"
+                          onClick={() => window.open(msg.imageUrl, "_blank")}
+                        />
+                      </div>
+                    )}
                     <span className="text-xs mt-2 block opacity-60">
                       {formatTimestamp(msg.timestamp)}
                     </span>
@@ -346,22 +271,71 @@ const ChatInterface = () => {
           </div>
         </ScrollArea>
 
+        {/* Image Preview & Message Form */}
+        {imagePreview && (
+          <div className="px-4 py-2 border-t border-gray-800 bg-gray-800/50 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="relative w-16 h-16 overflow-hidden rounded-md border border-gray-700">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="text-gray-300 text-sm truncate max-w-xs">
+                {selectedImage?.name}
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full hover:bg-gray-700/50"
+              onClick={clearSelectedImage}
+            >
+              X
+            </Button>
+          </div>
+        )}
+
         <Card className="border-t border-gray-800 rounded-none bg-transparent">
           <CardContent className="p-4">
             <form onSubmit={handleSendMessage} className="flex items-center space-x-3">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+              />
+              <Button 
+                type="button" 
+                size="icon"
+                variant="ghost"
+                className="h-12 w-12 rounded-full hover:bg-gray-800/80"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                <Image className="h-5 w-5 text-gray-300" />
+              </Button>
               <Input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type a message..."
                 className="flex-1 bg-gray-800/50 border-gray-700 text-gray-100 placeholder:text-gray-500 rounded-full py-6"
+                disabled={uploading}
               />
               <Button 
                 type="submit" 
                 size="icon"
                 className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-600 to-purple-700 hover:from-violet-700 hover:to-purple-800 shadow-lg"
+                disabled={uploading}
               >
-                <Send className="h-5 w-5 text-white" />
+                {uploading ? (
+                  <div className="h-5 w-5 border-2 border-t-transparent border-white rounded-full animate-spin" />
+                ) : (
+                  <Send className="h-5 w-5 text-white" />
+                )}
               </Button>
             </form>
           </CardContent>
