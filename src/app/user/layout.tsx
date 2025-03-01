@@ -40,7 +40,7 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => {
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
                     <BreadcrumbPage>
-                      Welcome to to Your Dashboard  {user.displayName}
+                      Welcome to to Your Dashboard  {user?.displayName}
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>

@@ -1,6 +1,8 @@
 "use client"
 import { TrendingUp } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, Label, Pie, PieChart, XAxis, YAxis } from "recharts"
+import React from 'react';
+import { Chart } from 'react-google-charts';
 
 import {
   Card,
@@ -410,3 +412,97 @@ export function MainChart() {
     </Card>
   )
 }
+
+
+
+export function GanttChartExample() {
+  // Data for the Gantt chart
+  const data = [
+    [
+      { type: 'string', label: 'Task ID' },
+      { type: 'string', label: 'Task Name' },
+      { type: 'string', label: 'Resource' },
+      { type: 'date', label: 'Start Date' },
+      { type: 'date', label: 'End Date' },
+      { type: 'number', label: 'Duration' },
+      { type: 'number', label: 'Percent Complete' },
+      { type: 'string', label: 'Dependencies' },
+    ],
+    [
+      'Research',
+      'Research Phase',
+      'Research Team',
+      new Date(2025, 0, 1),
+      new Date(2025, 0, 15),
+      null,
+      100,
+      null,
+    ],
+    [
+      'Design',
+      'Design Phase',
+      'Design Team',
+      new Date(2025, 0, 16),
+      new Date(2025, 1, 5),
+      null,
+      70,
+      'Research',
+    ],
+    [
+      'Development',
+      'Development Phase',
+      'Development Team',
+      new Date(2025, 1, 6),
+      new Date(2025, 2, 15),
+      null,
+      30,
+      'Design',
+    ],
+    [
+      'Testing',
+      'Testing Phase',
+      'QA Team',
+      new Date(2025, 2, 16),
+      new Date(2025, 2, 30),
+      null,
+      0,
+      'Development',
+    ],
+    [
+      'Deployment',
+      'Deployment Phase',
+      'DevOps Team',
+      new Date(2025, 3, 1),
+      new Date(2025, 4, 5),
+      null,
+      0,
+      'Testing',
+    ],
+  ];
+
+  // Options for the Gantt chart
+  const options = {
+    height: 400,
+    gantt: {
+      trackHeight: 40,
+      criticalPathEnabled: true,
+      criticalPathStyle: {
+        stroke: '#e64a19',
+        strokeWidth: 2,
+      },
+    },
+  };
+
+  return (
+    <div className="gantt-chart-container">
+      <h2>Project Timeline - Gantt Chart</h2>
+      <Chart
+        chartType="Gantt"
+        width="100%"
+        height="100px"
+        data={data}
+        options={options}
+      />
+    </div>
+  );
+};

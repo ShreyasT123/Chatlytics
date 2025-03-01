@@ -6,7 +6,7 @@ import * as React from "react";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
 
-import { MainChart, AChart, BChart, CChart } from "@/components/Chart";
+import { MainChart, AChart, BChart, CChart ,GanttChartExample} from "@/components/Chart";
 
 export function BasicButtons() {
   return (
@@ -37,6 +37,7 @@ export default function Dashboard() {
             </div>
           </div>
           <MainChart />
+          <GanttChartExample/>
 
           <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
             <h1>{user?.displayName}</h1>
